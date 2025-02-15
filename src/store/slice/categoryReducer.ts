@@ -28,39 +28,54 @@ export const fetchCategories = createAsyncThunk<Category[], void, { rejectValue:
       const categorySnapshot = await getDocs(categoriesCollection);
       const categoryList = categorySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })) as Category[];
       return categoryList;
-    } catch (error) {
-      return rejectWithValue("Failed to fetch categories");
+    } catch (error: any) {
+      if (error.code === "network-error") {
+        return rejectWithValue("Network error: Please check your internet connection.");
+      } else if (error.code === "internal-error") {
+        return rejectWithValue("Internal server error: Please try again later.");
+      } else {
+        return rejectWithValue("Failed to fetch categories.");
+      }
     }
   }
 );
 
 // Create a new category
-export const createCategory = createAsyncThunk<Category, Category, { rejectValue: string }>(
+export const createCategory = createAsyncThunk<Category, Partial<Category>, { rejectValue: string }>(
   "categories/create",
   async (category, { rejectWithValue }) => {
     try {
       const docRef = await addDoc(collection(db, "categories"), category);
-      return { ...category, id: docRef.id }; // Return the created category with its ID
-    } catch (error) {
-      return rejectWithValue("Failed to create category");
+      return { id: docRef.id, ...category } as Category;
+    } catch (error: any) {
+      if (error.code === "network-error") {
+        return rejectWithValue("Network error: Please check your internet connection.");
+      } else if (error.code === "internal-error") {
+        return rejectWithValue("Internal server error: Please try again later.");
+      } else {
+        return rejectWithValue("Failed to create category.");
+      }
     }
   }
 );
 
 // Update a category
-export const updateCategory = createAsyncThunk<
-  Category, 
-  { id: string; categoryData: Partial<Category> }, 
-  { rejectValue: string }  
->(
+export const updateCategory = createAsyncThunk<Category, Category, { rejectValue: string }>(
   "categories/update",
-  async ({ id, categoryData }, { rejectWithValue }) => {
+  async (category, { rejectWithValue }) => {
     try {
+      const { id, ...categoryData } = category;
       const categoryDocRef = doc(db, "categories", id);
       await updateDoc(categoryDocRef, categoryData);
-      return { id, ...categoryData } as Category;  
-    } catch (error) {
-      return rejectWithValue("Failed to update category");
+      return category;
+    } catch (error: any) {
+      if (error.code === "network-error") {
+        return rejectWithValue("Network error: Please check your internet connection.");
+      } else if (error.code === "internal-error") {
+        return rejectWithValue("Internal server error: Please try again later.");
+      } else {
+        return rejectWithValue("Failed to update category.");
+      }
     }
   }
 );
@@ -72,9 +87,15 @@ export const deleteCategory = createAsyncThunk<string, string, { rejectValue: st
     try {
       const categoryDocRef = doc(db, "categories", id);
       await deleteDoc(categoryDocRef);
-      return id; // Return the ID of the deleted category
-    } catch (error) {
-      return rejectWithValue("Failed to delete category");
+      return id;
+    } catch (error: any) {
+      if (error.code === "network-error") {
+        return rejectWithValue("Network error: Please check your internet connection.");
+      } else if (error.code === "internal-error") {
+        return rejectWithValue("Internal server error: Please try again later.");
+      } else {
+        return rejectWithValue("Failed to delete category.");
+      }
     }
   }
 );
@@ -103,7 +124,7 @@ const categorySlice = createSlice({
       })
       .addCase(createCategory.fulfilled, (state, action: PayloadAction<Category>) => {
         state.loading = false;
-        state.categories.push(action.payload); // Add the new category to the state
+        state.categories.push(action.payload); 
       })
       .addCase(createCategory.rejected, (state, action) => {
         state.loading = false;
@@ -116,7 +137,7 @@ const categorySlice = createSlice({
         state.loading = false;
         const index = state.categories.findIndex((category) => category.id === action.payload.id);
         if (index !== -1) {
-          state.categories[index] = action.payload; // Update the category
+          state.categories[index] = action.payload;  
         }
       })
       .addCase(updateCategory.rejected, (state, action) => {
@@ -128,7 +149,7 @@ const categorySlice = createSlice({
       })
       .addCase(deleteCategory.fulfilled, (state, action: PayloadAction<string>) => {
         state.loading = false;
-        state.categories = state.categories.filter((category) => category.id !== action.payload); // Remove the category
+        state.categories = state.categories.filter((category) => category.id !== action.payload);  
       })
       .addCase(deleteCategory.rejected, (state, action) => {
         state.loading = false;

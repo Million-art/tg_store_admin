@@ -38,7 +38,7 @@ export const addProduct = createAsyncThunk<Product, Product, { rejectValue: stri
   async (product, { rejectWithValue }) => {
     try {
       const docRef = await addDoc(collection(db, "products"), product);
-      return { ...product, id: docRef.id }; // Ensure ID is returned with the product
+      return { ...product, id: docRef.id };  
     } catch (error: any) {
       return rejectWithValue(error.message || "Failed to add product");
     }

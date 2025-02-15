@@ -1,51 +1,89 @@
-import { PayloadAction, createSlice } from '@reduxjs/toolkit';
-import { RootState } from '../store';
-import { User } from '../../interface/user';
+import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
+import { collection, getDocs, doc, deleteDoc } from "firebase/firestore";
+import { db } from "../../firebase/firebase";
+import { User } from "../../interface/user";
+import { AppDispatch } from "../store";
+import { useDispatch } from "react-redux";
 
-// Define the state type for user
-export type TUserSlice = {
-  items: User[]; // Array of users
-  loading: boolean; // Loading state
-  error: string | null; // Error state
-};
+interface UserState {
+  items: User[];
+  loading: boolean;
+  error: string | null;
+}
 
-// Initial state
-const initialState: TUserSlice = {
+const initialState: UserState = {
   items: [],
   loading: false,
   error: null,
 };
 
-// Create the user slice
+// Fetch all users
+export const fetchUsers = createAsyncThunk<User[], void, { rejectValue: string }>(
+  "users/fetchAll",
+  async (_, { rejectWithValue }) => {
+    try {
+      const usersCollection = collection(db, "users");
+      const userSnapshot = await getDocs(usersCollection);
+      const userList = userSnapshot.docs.map((doc) => ({ uid: doc.id, ...doc.data() })) as User[];
+      return userList;
+    } catch (error: any) {
+      return rejectWithValue(error.message || "Failed to fetch users");
+    }
+  }
+);
+
+// Delete a user
+export const deleteUser = createAsyncThunk<string, string, { rejectValue: string }>(
+  "users/delete",
+  async (uid, { rejectWithValue }) => {
+    try {
+      const userDocRef = doc(db, "users", uid);
+      await deleteDoc(userDocRef);
+      return uid;
+    } catch (error: any) {
+      return rejectWithValue(error.message || "Failed to delete user");
+    }
+  }
+);
+
 const userSlice = createSlice({
-  name: 'user',
+  name: "users",
   initialState,
   reducers: {
-    // Action to set the list of users
-    setUsers: (state, action: PayloadAction<User[]>) => {
-      state.items = action.payload;
-      state.loading = false; // Data fetched, loading is false
+    resetErrorState: (state) => {
+      state.error = null;
     },
-    // Action to delete a user
-    deleteUser: (state, action: PayloadAction<string>) => {
-      state.items = state.items.filter(user => user.uid !== action.payload);
-    },
-    // Action to set loading state
-    setLoading: (state, action: PayloadAction<boolean>) => {
-      state.loading = action.payload;
-    },
-    // Action to set error state
-    setError: (state, action: PayloadAction<string | null>) => {
-      state.error = action.payload;
-    },
+  },
+  extraReducers: (builder) => {
+    builder
+      // Fetch users
+      .addCase(fetchUsers.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchUsers.fulfilled, (state, action: PayloadAction<User[]>) => {
+        state.loading = false;
+        state.items = action.payload;
+      })
+      .addCase(fetchUsers.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || "Failed to fetch users";
+      })
+      // Delete user
+      .addCase(deleteUser.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(deleteUser.fulfilled, (state, action: PayloadAction<string>) => {
+        state.loading = false;
+        state.items = state.items.filter((user) => user.uid !== action.payload);
+      })
+      .addCase(deleteUser.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || "Failed to delete user";
+      });
   },
 });
 
-// Selector to get the users from the Redux state
-export const selectUsers = (state: RootState): User[] => state.user.items;
-export const selectUserById = (state: RootState, userId: string): User | undefined =>
-  state.user.items.find(user => user.uid === userId);
-
-// Export actions and reducer
-export const { setUsers, deleteUser, setLoading, setError } = userSlice.actions;
+export const { resetErrorState } = userSlice.actions;
 export default userSlice.reducer;
+export const useAppDispatch: () => AppDispatch = useDispatch;

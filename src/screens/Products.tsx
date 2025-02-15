@@ -13,7 +13,7 @@ import { Product } from "../interface/product";
 import { setShowMessage } from "../store/slice/messageReducer";
 import { AppDispatch, RootState } from "../store/store";
 import { Loader2, Plus } from "lucide-react";
-import ProductList from "../components/products/productList";
+import ProductList from "../components/products/ProductList";
 import AddProductForm from "../components/products/AddProductForm";
 import EditProductForm from "../components/products/EditProductForm";
 import DeleteConfirmationDialog from "../components/products/DeleteConfirmationDialog";

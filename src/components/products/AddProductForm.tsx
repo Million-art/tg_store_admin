@@ -6,21 +6,40 @@ import { Product } from "../../interface/product";
 import { Category } from "../../interface/category";
 
 interface AddProductFormProps {
-  isOpen: boolean; // Add isOpen prop
-  onClose: () => void; // Add onClose prop
-  onSubmit: (product: Product) => void; // Add onSubmit prop
-  categories: Category[]; // Add categories prop
+  isOpen: boolean;
+  onClose: () => void;
+  onSubmit: (product: Product) => void;
+  categories: Category[];
 }
 
 export default function AddProductForm({ isOpen, onClose, onSubmit, categories }: AddProductFormProps) {
   const [product, setProduct] = useState<Partial<Product>>({
     name: "",
-    image: "",
+    image: [], // Initialize image as an empty array
     price: 0,
     quantity: 0,
     description: "",
-    category: undefined, // Initialize category as undefined
+    category: undefined,
   });
+
+  const [imageInput, setImageInput] = useState(""); // Temporary input for a single image URL
+
+  const handleAddImage = () => {
+    if (imageInput.trim() !== "") {
+      setProduct((prev) => ({
+        ...prev,
+        image: [...(prev.image || []), imageInput], // Add the new image URL to the array
+      }));
+      setImageInput(""); // Clear the input field
+    }
+  };
+
+  const handleRemoveImage = (index: number) => {
+    setProduct((prev) => ({
+      ...prev,
+      image: (prev.image || []).filter((_, i) => i !== index), // Remove the image at the specified index
+    }));
+  };
 
   const handleSubmit = () => {
     onSubmit(product as Product); // Cast to Product and call onSubmit
@@ -40,13 +59,30 @@ export default function AddProductForm({ isOpen, onClose, onSubmit, categories }
             placeholder="Product name"
             className="w-full"
           />
-          <Input
-            type="text"
-            value={product.image || ""}
-            onChange={(e) => setProduct({ ...product, image: e.target.value })}
-            placeholder="Image URL"
-            className="w-full"
-          />
+          <div className="space-y-2">
+            <div className="flex gap-2">
+              <Input
+                type="text"
+                value={imageInput}
+                onChange={(e) => setImageInput(e.target.value)}
+                placeholder="Image URL"
+                className="w-full"
+              />
+              <Button type="button" onClick={handleAddImage}>
+                Add Image
+              </Button>
+            </div>
+            <div className="space-y-1">
+              {product.image?.map((img, index) => (
+                <div key={index} className="flex items-center justify-between p-2 border rounded">
+                  <span>{img}</span>
+                  <Button type="button" variant="destructive" size="sm" onClick={() => handleRemoveImage(index)}>
+                    Remove
+                  </Button>
+                </div>
+              ))}
+            </div>
+          </div>
           <Input
             type="number"
             value={product.price || 0}
@@ -71,7 +107,7 @@ export default function AddProductForm({ isOpen, onClose, onSubmit, categories }
           <select
             value={product.category?.id || ""}
             onChange={(e) => {
-              const selectedCategory = categories.find(cat => cat.id === e.target.value);
+              const selectedCategory = categories.find((cat) => cat.id === e.target.value);
               setProduct({ ...product, category: selectedCategory });
             }}
             className="w-full p-2 border rounded"

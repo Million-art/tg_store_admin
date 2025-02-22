@@ -43,7 +43,7 @@ export default function EditProductForm({ product, onClose, onSubmit }: EditProd
         <DialogHeader>
           <DialogTitle>Edit Product</DialogTitle>
         </DialogHeader>
-        <div className="space-y-3">
+        <div className="space-y-3 ">
           {/* Product Name */}
           <Input
             type="text"
@@ -69,7 +69,7 @@ export default function EditProductForm({ product, onClose, onSubmit }: EditProd
             </div>
             <div className="space-y-1">
               {editedProduct.image.map((img, index) => (
-                <div key={index} className="flex items-center justify-between p-2 border rounded">
+                <div key={index} className="flex items-center justify-between px-1  border rounded">
                   <span>{img}</span>
                   <Button
                     type="button"

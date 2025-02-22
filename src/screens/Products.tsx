@@ -23,7 +23,7 @@ export default function Products() {
   const { items: products, loading, error } = useSelector(
     (state: RootState) => state.products
   );
-  const { categories } = useSelector((state: RootState) => state.category); // Fetch categories from the Redux store
+  const { categories } = useSelector((state: RootState) => state.category); 
 
   const [isAddProductOpen, setIsAddProductOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
@@ -31,7 +31,7 @@ export default function Products() {
 
   useEffect(() => {
     dispatch(fetchProducts());
-    dispatch(fetchCategories()); // Fetch categories when the component mounts
+    dispatch(fetchCategories());  
   }, [dispatch]);
 
   const handleAddProduct = async (product: Product) => {
@@ -120,6 +120,7 @@ export default function Products() {
       {editingProduct && (
         <EditProductForm
           product={editingProduct}
+          categories={categories}   
           onClose={() => setEditingProduct(null)}
           onSubmit={handleUpdateProduct}
         />

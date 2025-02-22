@@ -3,7 +3,7 @@ import { Product } from "../../interface/product";
 import { Button } from "../ui/button";
 import { Edit, Trash2 } from "lucide-react";
 import { Input } from "../ui/input";
-import { Dialog, DialogContent } from "../ui/dialog"; // Import a modal/dialog component
+import { Dialog, DialogContent } from "../ui/dialog";  
 
 interface ProductListProps {
   products: Product[];
@@ -13,7 +13,7 @@ interface ProductListProps {
 
 export default function ProductList({ products, onEdit, onDelete }: ProductListProps) {
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedImage, setSelectedImage] = useState<string | null>(null); // Track the selected image for full-screen view
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);  
 
   // Filter products based on search term
   const filteredProducts = products.filter((product) =>

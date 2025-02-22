@@ -39,23 +39,23 @@ export default function EditProductForm({ product, onClose, onSubmit }: EditProd
 
   return (
     <Dialog open={true} onOpenChange={onClose}>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Edit Product</DialogTitle>
+      <DialogContent className="max-w-screen sm:max-w-md max-h-[90vh] overflow-y-auto">
+      <DialogHeader>
+          <DialogTitle className="flex justify-center w-screen">Edit Product</DialogTitle>
         </DialogHeader>
-        <div className="space-y-3 ">
+        <div className="space-y-4 w-screen flex flex-col justify-start ">
           {/* Product Name */}
           <Input
             type="text"
             value={editedProduct.name}
             onChange={(e) => setEditedProduct({ ...editedProduct, name: e.target.value })}
             placeholder="Product Name"
-            className="w-full"
+            className="w-fit"
           />
 
           {/* Image URLs */}
           <div className="space-y-2">
-            <div className="flex gap-2">
+            <div className="flex flex-col sm:flex-row gap-2">
               <Input
                 type="text"
                 value={newImage}
@@ -63,14 +63,14 @@ export default function EditProductForm({ product, onClose, onSubmit }: EditProd
                 placeholder="Add Image URL"
                 className="w-full"
               />
-              <Button type="button" onClick={handleAddImage}>
+              <Button type="button" onClick={handleAddImage} className="w-full sm:w-auto">
                 Add Image
               </Button>
             </div>
-            <div className="space-y-1">
+            <div className="space-y-2">
               {editedProduct.image.map((img, index) => (
-                <div key={index} className="flex items-center justify-between px-1  border rounded">
-                  <span>{img}</span>
+                <div key={index} className="flex items-center justify-between border rounded">
+                  <span className="truncate">{img}</span>
                   <Button
                     type="button"
                     variant="destructive"

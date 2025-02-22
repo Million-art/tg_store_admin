@@ -12,24 +12,22 @@ interface EditProductFormProps {
 
 export default function EditProductForm({ product, onClose, onSubmit }: EditProductFormProps) {
   const [editedProduct, setEditedProduct] = useState<Product>(product);
-  const [newImage, setNewImage] = useState(""); // Temporary input for adding a new image URL
+  const [newImage, setNewImage] = useState("");
 
-  // Add a new image to the image array
   const handleAddImage = () => {
     if (newImage.trim() !== "") {
       setEditedProduct((prev) => ({
         ...prev,
-        image: [...prev.image, newImage], // Add the new image URL to the array
+        image: [...prev.image, newImage],
       }));
-      setNewImage(""); // Clear the input field
+      setNewImage("");
     }
   };
 
-  // Remove an image from the image array
   const handleRemoveImage = (index: number) => {
     setEditedProduct((prev) => ({
       ...prev,
-      image: prev.image.filter((_, i) => i !== index), // Remove the image at the specified index
+      image: prev.image.filter((_, i) => i !== index),
     }));
   };
 
@@ -39,18 +37,18 @@ export default function EditProductForm({ product, onClose, onSubmit }: EditProd
 
   return (
     <Dialog open={true} onOpenChange={onClose}>
-      <DialogContent className="max-w-screen sm:max-w-md max-h-[90vh] overflow-y-auto">
-      <DialogHeader>
-          <DialogTitle className="flex justify-center w-screen">Edit Product</DialogTitle>
+      <DialogContent className="w-full max-w-md sm:max-w-lg max-h-[90vh] overflow-y-auto p-4">
+        <DialogHeader>
+          <DialogTitle className="text-center text-lg font-semibold">Edit Product</DialogTitle>
         </DialogHeader>
-        <div className="space-y-4 w-screen flex flex-col justify-start ">
+        <div className="space-y-4">
           {/* Product Name */}
           <Input
             type="text"
             value={editedProduct.name}
             onChange={(e) => setEditedProduct({ ...editedProduct, name: e.target.value })}
             placeholder="Product Name"
-            className="w-fit"
+            className="w-full"
           />
 
           {/* Image URLs */}
@@ -67,10 +65,10 @@ export default function EditProductForm({ product, onClose, onSubmit }: EditProd
                 Add Image
               </Button>
             </div>
-            <div className="space-y-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               {editedProduct.image.map((img, index) => (
-                <div key={index} className="flex items-center justify-between border rounded">
-                  <span className="truncate">{img}</span>
+                <div key={index} className="flex items-center justify-between border rounded p-2">
+                  <span className="truncate w-3/4">{img}</span>
                   <Button
                     type="button"
                     variant="destructive"
